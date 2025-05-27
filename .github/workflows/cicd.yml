@@ -13,31 +13,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - # 깃허브 리포지토리에서 소스 코드 체크아웃
+      # 깃허브 리포지토리에서 소스 코드 체크아웃
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - # JDK 17 설정
+       # JDK 17 설정
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - # Gradle wrapper 실행 권한 부여
+       # Gradle wrapper 실행 권한 부여
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - # 환경변수 설정 (application.yml 작성)
+       # 환경변수 설정 (application.yml 작성)
       - name: Set application.yml for environment
         run: |
           echo "${{ secrets.APPLICATION_YML }}" > src/main/resources/application.yml
 
-      - # Gradle 빌드 (테스트 제외)
+       # Gradle 빌드 (테스트 제외)
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-      - # 빌드된 아티팩트 업로드
+       # 빌드된 아티팩트 업로드
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
