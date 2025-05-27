@@ -71,8 +71,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // "*" 대신 구체적인 출처 지정
-        configuration.setAllowedOrigins(List.of(
-                "http://127.0.0.1", "http://localhost:3000", "https://kkumiroom.site", "http://kkumiroom.site"));
+        configuration.setAllowedOrigins(List.of("http://43.200.63.143:3000",
+                "http://127.0.0.1", "http://localhost:3000", "https://kkumiroom.site", "http://kkumiroom.site", "https://kkumiroom.site:3000", "http://kkumiroom.site:3000"));
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);  // credentials 활성화
