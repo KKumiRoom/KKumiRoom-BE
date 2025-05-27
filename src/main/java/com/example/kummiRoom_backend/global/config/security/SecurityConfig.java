@@ -45,7 +45,6 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/api/openapi/**",
-                                "/api/auth/sign-out",
                                 "/v3/api-docs/**"
                         )
                         .permitAll()
