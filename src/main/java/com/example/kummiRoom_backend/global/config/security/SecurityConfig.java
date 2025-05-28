@@ -2,7 +2,6 @@ package com.example.kummiRoom_backend.global.config.security;
 
 import com.example.kummiRoom_backend.global.auth.AuthService;
 import com.example.kummiRoom_backend.global.auth.JwtService;
-import com.example.kummiRoom_backend.global.auth.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,12 +23,11 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtService jwtService;
-    private final RedisService redisService;
     private final AuthService authService;
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtService, redisService, authService);
+        return new JwtAuthenticationFilter(jwtService, authService);
     }
 
     //
