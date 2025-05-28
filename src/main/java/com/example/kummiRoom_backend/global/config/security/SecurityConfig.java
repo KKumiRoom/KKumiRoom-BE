@@ -47,6 +47,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(
+                    "/openapi/**",
                     "/api/openapi/**",
                     "/v3/api-docs/**"
                 ).permitAll()
