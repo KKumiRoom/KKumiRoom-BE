@@ -3,7 +3,7 @@ package com.example.kummiRoom_backend.global.config.security;
 import com.example.kummiRoom_backend.global.apiResult.ApiResult;
 import com.example.kummiRoom_backend.global.auth.AuthService;
 import com.example.kummiRoom_backend.global.auth.JwtService;
-import com.example.kummiRoom_backend.global.auth.RedisService;
+import com.example.kummiRoom_backend.global.exception.UnauthorizedException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -11,6 +11,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,7 +29,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final JwtService jwtService;
-	private final RedisService redisService;
 	private final AuthService authService;
 
 	//todo 서비스 경로 고려
@@ -55,14 +56,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		try {
-			// 토큰이 블랙리스트에 있는지 확인
-			if (redisService.isBlacklisted(accessToken)) {
-				ApiResult apiResult = new ApiResult(403, "FORBIDDEN", "Token is blacklisted", null);
-				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-				response.setContentType("application/json");
-				response.getWriter().write(new ObjectMapper().writeValueAsString(apiResult));
-				return;
-			}
 
 			// JWT 유효성 검사
 			final String userId = jwtService.extractAuthId(accessToken);
@@ -85,27 +78,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 					SecurityContextHolder.getContext().setAuthentication(authToken);
 				} else {
-					ApiResult apiResult = new ApiResult(400, "BAD_REQUEST", "Invalid token", null);
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					response.setContentType("application/json");
-					response.getWriter().write(new ObjectMapper().writeValueAsString(apiResult));
-					return;
+					throw new BadCredentialsException("Invalid token");
 				}
 			}
 		} catch (ExpiredJwtException e) {
-			ApiResult apiResult = new ApiResult(401, "UNAUTHORIZED", "Token is expired", null);
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.setContentType("application/json");
-			response.getWriter().write(new ObjectMapper().writeValueAsString(apiResult));
-			return;
+			throw new UnauthorizedException("Token is expired");
 		} catch (Exception e) {
-			ApiResult apiResult = new ApiResult(500, "INTERNAL_SERVER_ERROR", "Token validation failed", null);
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.setContentType("application/json");
-			response.getWriter().write(new ObjectMapper().writeValueAsString(apiResult));
-			return;
+			throw new UnauthorizedException("Token validation failed");
 		}
-
 		filterChain.doFilter(request, response);
 	}
 }
